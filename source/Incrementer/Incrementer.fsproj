@@ -8,7 +8,7 @@
     <ProjectGuid>ebb05eed-6ffd-4e31-8b6e-c94468705bc3</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Fake.Versioning</RootNamespace>
-    <AssemblyName>Fake.Versioning</AssemblyName>
+    <AssemblyName>Incrementer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
