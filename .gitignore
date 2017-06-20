@@ -1,0 +1,15 @@
+bin
+obj
+
+.fake
+
+*.suo
+*.user
+
+source/packages
+build/tools
+build/tests
+build/output
+
+/TestResult*
+/_ReSharper.*
