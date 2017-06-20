@@ -53,3 +53,17 @@ let ``Version is equal to number of commits after most recent tag`` () =
     let version = Incrementer.Git.getRepositoryVersionUsingProcess createParameters getMessages
 
     version |> shouldEqual { Major = 1; Minor = 2; Patch = 4; }
+
+[<Test>]
+let ``Version is extracted correct from tag created at the same point as branch`` () =
+    let getMessages =
+        createMessages [
+            "6f63314 (HEAD -> master) Include Incrementer package for easier versioning.";
+            "eb43498 (tag: v1.3, origin/master, origin/HEAD) Increment version.";
+            "7938560 Remove read rows limit for commodities provider.";
+            "bcf6d73 Increment version to 1.2.7.0";
+        ]
+    
+    let version = Incrementer.Git.getRepositoryVersionUsingProcess createParameters getMessages
+    
+    version |> shouldEqual { Major = 1; Minor = 3; Patch = 1; }
