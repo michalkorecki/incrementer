@@ -15,7 +15,7 @@
     <owners>michalkorecki</owners>
 
     <!-- License and project URLs provide links for the gallery -->
-    <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
+    <licenseUrl>https://raw.githubusercontent.com/michalkorecki/incrementer/master/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/michalkorecki/incrementer.git</projectUrl>
 
     <!-- The icon is used in Visual Studio's package manager UI -->
