@@ -55,7 +55,7 @@ let ``Version is equal to number of commits after most recent tag`` () =
     version |> shouldEqual { Major = 1; Minor = 2; Patch = 4; }
 
 [<Test>]
-let ``Version is extracted correct from tag created at the same point as branch`` () =
+let ``Version is extracted correctly from tag created at the same commit as branch head`` () =
     let getMessages =
         createMessages [
             "6f63314 (HEAD -> master) Include Incrementer package for easier versioning.";
