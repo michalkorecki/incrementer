@@ -52,7 +52,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Git.fs" />
+    <Compile Include="Version.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -1,15 +1,10 @@
-﻿module Incrementer.Git
+﻿module Incrementer.Version
 
 open Fake
 open ProcessHelper
 open System
 open System.Text.RegularExpressions
 
-// Tests
-// several tags
-// no tags
-// no commits
-// execproc fail
 
 type Parameters = {
     GitExecutablePath: string;
@@ -17,13 +12,13 @@ type Parameters = {
     Branch: string;
 }
 
-type Version = {
+type SemVer = {
     Major: int;
     Minor: int;
     Patch: int;
 }
 
-let getRepositoryVersionUsingProcess (changeParameters : Parameters -> Parameters) (execProcess : Parameters -> bool * seq<ConsoleMessage>) =
+let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> Parameters) (execProcess : Parameters -> bool * seq<ConsoleMessage>) =
     let defaultParameters = { GitExecutablePath = "git.exe"; Branch = "master"; GitRepositoryPath = "." }
     let parameters = changeParameters defaultParameters
     let status, messages = execProcess parameters
@@ -55,3 +50,7 @@ let getRepositoryVersion changeParameters =
             info.Arguments <- sprintf "log %s --oneline --decorate" parameters.Branch
             info.CreateNoWindow <- true) (TimeSpan.FromSeconds 30.0)
     getRepositoryVersionUsingProcess changeParameters execGitProcess
+
+let toSemVerString version =
+    sprintf "%i.%i.%i" version.Major version.Minor version.Patch
+    

@@ -8,7 +8,7 @@
     <ProjectGuid>45b80e88-f29b-457e-9e40-8f42424a81e8</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>JimmyKeen.FAKE.Versioning.Tests</RootNamespace>
-    <AssemblyName>JimmyKeen.FAKE.Versioning.Tests</AssemblyName>
+    <AssemblyName>Incrementer.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -51,7 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="GitTests.fs" />
+    <Compile Include="VersionTests.fs" />
     <Content Include="App.config" />
     <Content Include="packages.config" />
   </ItemGroup>

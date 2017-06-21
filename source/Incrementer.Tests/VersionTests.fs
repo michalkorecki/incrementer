@@ -1,11 +1,10 @@
-﻿module Incrementer.Tests.GitTests
+﻿module Incrementer.Tests.VersionTests
 
 open Fake
+open Incrementer
 open FsUnit
 open NUnit.Framework
 open System
-
-type FakeVersion = Incrementer.Git.Version
 
 
 let createMessages commits = fun _ ->
@@ -17,7 +16,7 @@ let createMessages commits = fun _ ->
 let createParameters parameters =
     parameters
 
-let shouldEqual (expected : FakeVersion) (actual : FakeVersion) =
+let shouldEqual (expected : Incrementer.Version.SemVer) (actual : Incrementer.Version.SemVer) =
     actual.Major |> should equal expected.Major
     actual.Minor |> should equal expected.Minor
     actual.Patch |> should equal expected.Patch
@@ -31,7 +30,7 @@ let ``Version is equal to number of commits when there is no tag in repo commit 
             "ca3cf48 Initial commit";
         ]
 
-    let version = Incrementer.Git.getRepositoryVersionUsingProcess createParameters getMessages
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
 
     version |> shouldEqual { Major = 1; Minor = 0; Patch = 3; }
 
@@ -50,7 +49,7 @@ let ``Version is equal to number of commits after most recent tag`` () =
             "d85d467 (tag: v1.1) Adjust build scripts for SQLite deployment.";
         ]
 
-    let version = Incrementer.Git.getRepositoryVersionUsingProcess createParameters getMessages
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
 
     version |> shouldEqual { Major = 1; Minor = 2; Patch = 4; }
 
@@ -64,6 +63,12 @@ let ``Version is extracted correctly from tag created at the same commit as bran
             "bcf6d73 Increment version to 1.2.7.0";
         ]
     
-    let version = Incrementer.Git.getRepositoryVersionUsingProcess createParameters getMessages
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
     
     version |> shouldEqual { Major = 1; Minor = 3; Patch = 1; }
+
+[<Test>]
+let ``Version can be converted to sem ver string`` () =
+    let semVer = Incrementer.Version.toSemVerString { Major = 2; Minor = 5; Patch = 17 }
+
+    semVer |> should equal "2.5.17"
