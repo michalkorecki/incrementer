@@ -75,7 +75,7 @@ Task("Publish")
 		    Incrementer.Version.Parameters, 
 		    Incrementer.Version.Parameters>(p => p);
 		var semVer = Incrementer.Version.getRepositoryVersion(id);
-		var semVerString = Incrementer.Version.toSemVerString(version);
+		var semVerString = Incrementer.Version.toSemVerString(semVer);
 
 		Console.WriteLine(semVerString);
 	});
