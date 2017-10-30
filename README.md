@@ -19,7 +19,7 @@ d85d467 (tag: v1.1) Adjust build scripts for SQLite deployment
 
 The version returned by Incrementer will be `1.2.4`.
 
-### usage
+### usage (F#)
 
 When using [FAKE](https://fake.build/), your publish target might use Incrementer in the following fashion:
 
@@ -55,5 +55,30 @@ Target "Publish" (fun _ ->
 
     // ...
 )
+```
 
- 
+
+### usage (C#)
+
+Interop with C# build system like [Cake](https://cakebuild.net/) is also possible. Pull the package and reference Incrementer together with FakeLib:
+
+```csharp
+#addin nuget:?package=Incrementer&loaddependencies=true
+
+#reference "build/Addins/incrementer/FAKE.Lib/lib/net451/FakeLib.dll"
+#reference "build/Addins/incrementer/Incrementer/lib/net452/Incrementer.dll"
+
+Task("Publish")
+	.Does(() => 
+	{
+		var id = Test.FAKECore.FSharpFuncUtil.ToFSharpFunc<
+		    Incrementer.Version.Parameters, 
+		    Incrementer.Version.Parameters>(p => p);
+		var semVer = Incrementer.Version.getRepositoryVersion(id);
+		var semVerString = Incrementer.Version.toSemVerString(version);
+
+		Console.WriteLine(semVerString);
+	});
+```
+
+`ToFSharpFunc` is a utility method from FAKE package converting C# lambda to F# function.
