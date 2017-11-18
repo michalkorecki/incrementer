@@ -54,6 +54,21 @@ let ``Version is equal to number of commits after most recent tag`` () =
     version |> shouldEqual { Major = 1; Minor = 2; Patch = 4; }
 
 [<Test>]
+let ``Version patch component is incremented when most recent tag contains patch number (issue #2)`` () =
+    let getMessages =
+        createMessages [
+            "be419bf Remove process-killing from build.";
+            "67d55d6 Adjust binaries names.";
+            "9dc43df Fix config paths.";
+            "da24eba (tag: v2.4.29) Add more clear status messages.";
+            "87e123c Adjust build to include fsharp projects.";
+        ]
+
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
+
+    version |> shouldEqual { Major = 2; Minor = 4; Patch = 32; }
+
+[<Test>]
 let ``Version is extracted correctly from tag created at the same commit as branch head`` () =
     let getMessages =
         createMessages [

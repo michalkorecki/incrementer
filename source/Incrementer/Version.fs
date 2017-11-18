@@ -23,12 +23,14 @@ let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> 
     let parameters = changeParameters defaultParameters
     let status, messages = execProcess parameters
     let extractVersionByTag (index : int) (consoleMessage : ConsoleMessage) =
-        let matched = Regex.Match(consoleMessage.Message, @"\(.*?tag: [vV]?(?<major>[0-9]+)\.?(?<minor>[0-9]+)?.*?\)")
+        let matched = Regex.Match(consoleMessage.Message, @"\(.*?tag: [vV]?(?<major>[0-9]+)\.?(?<minor>[0-9]+)?\.?(?<patch>[0-9]+)?.*?\)")
         if matched.Success then
+            let patchGroup = matched.Groups.["patch"]
+            let patch = if patchGroup.Success then Int32.Parse(patchGroup.Value) else 0
             let minorGroup = matched.Groups.["minor"]
             let minor = if minorGroup.Success then Int32.Parse(minorGroup.Value) else 0
             let major = Int32.Parse(matched.Groups.["major"].Value)
-            Some { Major = major; Minor = minor; Patch = index; }
+            Some { Major = major; Minor = minor; Patch = patch + index; }
         else
             None
             
