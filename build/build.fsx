@@ -1,10 +1,12 @@
 #r "tools/FAKE/tools/FakeLib.dll"
+#r "tools/Incrementer/lib/net452/Incrementer.dll"
 
 open Fake
 open Fake.FileSystem
 open Fake.ProcessHelper
 open Fake.RestorePackageHelper
 open Fake.Testing.NUnit3
+open Incrementer
 open System
 open System.IO
 
@@ -35,7 +37,8 @@ Target "RunTests" (fun _ ->
 
 Target "Publish" (fun _ ->
     let key = getBuildParam "key"
-    let version = getBuildParam "version"
+    let semVer = Incrementer.Version.getRepositoryVersion id
+    let version = Incrementer.Version.toSemVerString semVer
     NuGetPack 
         (fun p ->
            { p with
@@ -53,6 +56,12 @@ Target "Publish" (fun _ ->
                WorkingDir = outputDirectory
                ToolPath = "./build/nuget.exe"
                Project = "Incrementer" })
+)
+
+Target "ShowVersion" (fun _ ->
+    let semVer = Incrementer.Version.getRepositoryVersion id
+    let version = Incrementer.Version.toSemVerString semVer
+    printfn "Version: %s" version
 )
 
 
