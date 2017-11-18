@@ -2,6 +2,15 @@
 
 Incrementer is a simple library to ease incremental NuGet packages development. The idea behind is to use git commit log to "deduce" current package version.
 
+### installation
+
+Incrementer is available on [NuGet](https://www.nuget.org/packages/Incrementer). Install it using:
+
+```
+Install-Package Incrementer
+```
+
+
 ### behavior
 
 Incrementer uses git tags to track most recent version and then appends number of commits since last tag to increment *patch* part of version. When your git log looks like this:
