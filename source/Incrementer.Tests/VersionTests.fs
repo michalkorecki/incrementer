@@ -68,6 +68,19 @@ let ``Version is extracted correctly from tag created at the same commit as bran
     version |> shouldEqual { Major = 1; Minor = 3; Patch = 1; }
 
 [<Test>]
+let ``Version is extracted correctly from tag created at local HEAD (issue #4)`` () =
+    let getMessages =
+        createMessages [
+            "6f63314 (HEAD -> master, tag: 1.3) Include Incrementer package for easier versioning.";
+            "7938560 Remove read rows limit for commodities provider.";
+            "bcf6d73 Increment version to 1.2.7.0";
+        ]
+
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
+
+    version |> shouldEqual { Major = 1; Minor = 3; Patch = 0 }
+
+[<Test>]
 let ``Version can be converted to sem ver string`` () =
     let semVer = Incrementer.Version.toSemVerString { Major = 2; Minor = 5; Patch = 17 }
 
