@@ -54,6 +54,7 @@ let getRepositoryVersion changeParameters =
                 Executable = parameters.GitExecutablePath;
                 Args = sprintf "log %s --oneline --decorate" parameters.Branch;
                 WorkingDirectory = parameters.GitRepositoryPath;
+                Timeout = TimeSpan.FromSeconds(60.0);
             }
             Incrementer.Process.execute processData
 

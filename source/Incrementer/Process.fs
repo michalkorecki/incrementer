@@ -8,6 +8,7 @@ type ProcessData = {
     Executable : string;
     Args : string;
     WorkingDirectory : string;
+    Timeout : System.TimeSpan;
 }
 
 let execute data =
@@ -21,24 +22,33 @@ let execute data =
         pi.RedirectStandardOutput <- true
         pi.RedirectStandardError <- true
 
+        let output = new System.Collections.Generic.List<string>()
+        let error = new System.Collections.Generic.List<string>()
         let p = new System.Diagnostics.Process()
         p.StartInfo <- pi
+        p.ErrorDataReceived.Add(fun d -> if d.Data <> null then error.Add(d.Data))
+        p.OutputDataReceived.Add(fun d -> if d.Data <> null then output.Add(d.Data))
         p.Start() |> ignore
-        
-        let rec read (output : System.IO.StreamReader) (result : list<string>) =
-            if output.EndOfStream then
-                result
-            else
-                let line = output.ReadLine()
-                read output (line::result)
-        
-        let output = read p.StandardOutput []
-        let error = read p.StandardError []
-        
-        if error.Length > 0 then
-            Error error.[0]
+
+        p.BeginErrorReadLine()
+        p.BeginOutputReadLine()
+
+        if not <| p.WaitForExit(int data.Timeout.TotalMilliseconds) then
+            try
+                p.Kill()
+            with ex ->
+                failwithf "Could not kill process %s %s after timeout." p.StartInfo.FileName p.StartInfo.Arguments
+            failwithf "Process %s %s timed out." p.StartInfo.FileName p.StartInfo.Arguments
         else
-            Success <| Seq.toArray output
+            // WaitForExit must be called twice due to synchronization issues
+            // https://stackoverflow.com/a/16095658/1149924
+            // https://msdn.microsoft.com/en-us/library/ty0d8k56.aspx
+            p.WaitForExit()
+
+            if error.Count > 0 then
+                Error error.[0]
+            else
+                Success <| Seq.toArray output
     with
     | ex ->
         Error ex.Message
