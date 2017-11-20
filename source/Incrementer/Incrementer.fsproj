@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>ebb05eed-6ffd-4e31-8b6e-c94468705bc3</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Fake.Versioning</RootNamespace>
+    <RootNamespace>Incrementer</RootNamespace>
     <AssemblyName>Incrementer</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
@@ -52,13 +52,10 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Process.fs" />
     <Compile Include="Version.fs" />
-    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FakeLib">
-      <HintPath>..\packages\FAKE.Lib.4.45.3\lib\net451\FakeLib.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>

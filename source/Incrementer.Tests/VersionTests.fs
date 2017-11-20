@@ -1,17 +1,12 @@
 ﻿module Incrementer.Tests.VersionTests
 
-open Fake
-open Incrementer
 open FsUnit
+open Incrementer
 open NUnit.Framework
-open System
 
 
-let createMessages commits = fun _ ->
-    let consoleMessages =
-        commits
-        |> Seq.map (fun c -> { IsError = false; Message = c; Timestamp = DateTimeOffset(DateTime.Now); })
-    (true, consoleMessages)
+let internal createMessages commits = fun _ ->
+    Incrementer.Process.Success <| Seq.toArray commits
 
 let createParameters parameters =
     parameters

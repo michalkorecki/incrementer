@@ -1,7 +1,6 @@
 ﻿module Incrementer.Version
 
-open Fake
-open ProcessHelper
+open Incrementer.Process
 open System
 open System.Text.RegularExpressions
 
@@ -18,41 +17,47 @@ type SemVer = {
     Patch: int;
 }
 
-let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> Parameters) (execProcess : Parameters -> bool * seq<ConsoleMessage>) =
+let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> Parameters) (execProcess : Parameters -> ProcessOutput) =
     let defaultParameters = { GitExecutablePath = "git.exe"; Branch = "master"; GitRepositoryPath = "." }
     let parameters = changeParameters defaultParameters
-    let status, messages = execProcess parameters
-    let extractVersionByTag (index : int) (consoleMessage : ConsoleMessage) =
-        let matched = Regex.Match(consoleMessage.Message, @"\(.*?tag: [vV]?(?<major>[0-9]+)\.?(?<minor>[0-9]+)?\.?(?<patch>[0-9]+)?.*?\)")
-        if matched.Success then
-            let patchGroup = matched.Groups.["patch"]
-            let patch = if patchGroup.Success then Int32.Parse(patchGroup.Value) else 0
-            let minorGroup = matched.Groups.["minor"]
-            let minor = if minorGroup.Success then Int32.Parse(minorGroup.Value) else 0
-            let major = Int32.Parse(matched.Groups.["major"].Value)
-            Some { Major = major; Minor = minor; Patch = patch + index; }
-        else
-            None
+    let output = execProcess parameters
+    match output with
+    | Error message ->
+        failwith message
+    | Success messages ->
+        let extractVersionByTag (index : int) (message : string) =
+            let matched = Regex.Match(message, @"\(.*?tag: [vV]?(?<major>[0-9]+)\.?(?<minor>[0-9]+)?\.?(?<patch>[0-9]+)?.*?\)")
+            if matched.Success then
+                let patchGroup = matched.Groups.["patch"]
+                let patch = if patchGroup.Success then Int32.Parse(patchGroup.Value) else 0
+                let minorGroup = matched.Groups.["minor"]
+                let minor = if minorGroup.Success then Int32.Parse(minorGroup.Value) else 0
+                let major = Int32.Parse(matched.Groups.["major"].Value)
+                Some { Major = major; Minor = minor; Patch = patch + index; }
+            else
+                None
             
-    let mostRecentTagVersion =
-        messages
-        |> Seq.mapi extractVersionByTag
-        |> Seq.choose id
-        |> Seq.tryHead
+        let mostRecentTagVersion =
+            messages
+            |> Seq.mapi extractVersionByTag
+            |> Seq.choose id
+            |> Seq.tryHead
         
-    match mostRecentTagVersion with
-    | Some(v) -> v
-    | _ -> { Major = 1; Minor = 0; Patch = (Seq.length messages); }
+        match mostRecentTagVersion with
+        | Some(v) -> v
+        | _ -> { Major = 1; Minor = 0; Patch = (Seq.length messages); }
 
 let getRepositoryVersion changeParameters =
     let execGitProcess =
-        fun parameters -> ExecProcessRedirected (fun info ->
-            info.FileName <- parameters.GitExecutablePath
-            info.WorkingDirectory <- parameters.GitRepositoryPath
-            info.Arguments <- sprintf "log %s --oneline --decorate" parameters.Branch
-            info.CreateNoWindow <- true) (TimeSpan.FromSeconds 30.0)
+        fun parameters ->
+            let processData = {
+                Executable = parameters.GitExecutablePath;
+                Args = sprintf "log %s --oneline --decorate" parameters.Branch;
+                WorkingDirectory = parameters.GitRepositoryPath;
+            }
+            Incrementer.Process.execute processData
+
     getRepositoryVersionUsingProcess changeParameters execGitProcess
 
 let toSemVerString version =
     sprintf "%i.%i.%i" version.Major version.Minor version.Patch
-    
