@@ -69,7 +69,7 @@ Target "Publish" (fun _ ->
 
 ### usage (C#)
 
-Interop with C# build system like [Cake](https://cakebuild.net/) is also possible. Pull the package and reference Incrementer together with FakeLib:
+Interop with C# build system like [Cake](https://cakebuild.net/) is also possible:
 
 ```csharp
 #addin nuget:?package=Incrementer
@@ -81,7 +81,7 @@ Interop with C# build system like [Cake](https://cakebuild.net/) is also possibl
 Task("Publish")
 	.Does(() => 
 	{
-		var id = Microsoft.FSharp.Core.FuncConverter.ToFSharpFunc(
+		var id = Microsoft.FSharp.Core.FuncConvert.ToFSharpFunc(
 			new Converter<Incrementer.Version.Parameters, Incrementer.Version.Parameters>(p => p));
 		var semVer = Incrementer.Version.getRepositoryVersion(id);
 		var semVerString = Incrementer.Version.toSemVerString(semVer);
