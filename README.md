@@ -1,5 +1,7 @@
 # incrementer
 
+[![NuGet](https://badge.fury.io/nu/incrementer.svg)](https://www.nuget.org/packages/Incrementer)
+
 Incrementer is a simple library to ease incremental NuGet packages development. The idea behind is to use git commit log to "deduce" current package version.
 
 ### installation
