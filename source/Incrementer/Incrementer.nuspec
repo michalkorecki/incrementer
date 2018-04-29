@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Incrementer</id>
+    <version>$version$</version>
+    <title>Incrementer - versioning library</title>
+    <authors>Michał Korecki</authors>
+    <description>Versioning library utilizing git commit history to do so</description>
+    <releaseNotes></releaseNotes>
+    <projectUrl>https://github.com/michalkorecki/incrementer</projectUrl>
+    <licenseUrl>https://github.com/michalkorecki/incrementer/blob/master/LICENSE.txt</licenseUrl>
+  </metadata>
+  <files>
+    <file src="Incrementer.dll" target="lib\net452" />
+  </files>
+</package>
