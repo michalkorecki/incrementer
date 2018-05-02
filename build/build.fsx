@@ -11,13 +11,14 @@ open System
 open System.IO
 
 let outputDirectory = "./build/output"
+let packageDirectory = "./build/package"
 let testDirectory = "./build/tests"
 let deployables = (!! "./source/**/*.?sproj") -- "./source/**/*Test*.?sproj"
 let testables = !! "./source/**/*Test*.?sproj"
 
 
 Target "Clean" (fun _ ->
-    CleanDirs [outputDirectory;testDirectory]
+    CleanDirs [outputDirectory;testDirectory;packageDirectory]
 )
 
 Target "Compile" (fun _ ->
@@ -39,21 +40,22 @@ Target "Publish" (fun _ ->
     let key = getBuildParam "key"
     let semVer = Incrementer.Version.getRepositoryVersion id
     let version = Incrementer.Version.toSemVerString semVer
+
     NuGetPack 
         (fun p ->
            { p with
                Version = version
-               OutputPath = outputDirectory
+               OutputPath = packageDirectory
                WorkingDir = outputDirectory
                ToolPath = "./build/nuget.exe" })
-        "./source/Incrementer/Incrementer.fsproj"
+        "./source/Incrementer/Incrementer.nuspec"
     NuGetPublish
         (fun p ->
             { p with
                AccessKey = key
                Version = version
-               OutputPath = outputDirectory
-               WorkingDir = outputDirectory
+               OutputPath = packageDirectory
+               WorkingDir = packageDirectory
                ToolPath = "./build/nuget.exe"
                Project = "Incrementer" })
 )
