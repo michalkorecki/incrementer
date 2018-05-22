@@ -64,7 +64,7 @@ let ``Version is equal to number of commits after most recent tag (PatchPerCommi
     version |> shouldEqual { Major = 1; Minor = 2; Patch = 4; }
 
 [<Test>]
-let ``When most recent tag contains patch number version is incrementer by numer of commits since this tag (PatchPerCommit mode, issue #2)`` () =
+let ``When most recent tag contains patch number version is incrementer by number of commits since this tag (PatchPerCommit mode, issue #2)`` () =
     let getMessages =
         createMessages [
             "be419bf Remove process-killing from build.";
@@ -78,6 +78,22 @@ let ``When most recent tag contains patch number version is incrementer by numer
     let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
 
     version |> shouldEqual { Major = 2; Minor = 4; Patch = 32; }
+
+[<Test>]
+let ``Most recent tag version is incremented by one (SemanticVersioning mode)`` () =
+    let getMessages =
+        createMessages [
+            "be419bf Remove process-killing from build.";
+            "67d55d6 Adjust binaries names.";
+            "9dc43df Fix config paths.";
+            "da24eba (tag: v2.4.29) Add more clear status messages.";
+            "87e123c Adjust build to include fsharp projects.";
+        ]
+
+    let changeParameters = createChangeParameters svr
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
+
+    version |> shouldEqual { Major = 2; Minor = 4; Patch = 30; }
 
 [<TestCase(ppc)>]
 [<TestCase(svr)>]

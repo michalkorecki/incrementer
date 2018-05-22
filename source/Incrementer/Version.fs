@@ -37,7 +37,13 @@ let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> 
                 let minorGroup = matched.Groups.["minor"]
                 let minor = if minorGroup.Success then Int32.Parse(minorGroup.Value) else 0
                 let major = Int32.Parse(matched.Groups.["major"].Value)
-                Some { Major = major; Minor = minor; Patch = patch + index; }
+                let patchIncremented =
+                    match parameters.IncrementMode with
+                    | SemanticVersioning ->
+                        patch + (if index = 0 then 0 else 1)
+                    | PatchPerCommit ->
+                        patch + index;
+                Some { Major = major; Minor = minor; Patch = patchIncremented; }
             else
                 None
          
