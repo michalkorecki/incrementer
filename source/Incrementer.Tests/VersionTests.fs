@@ -9,16 +9,28 @@ open NUnit.Framework
 let internal createMessages commits = fun _ ->
     Incrementer.Process.Success <| Seq.toArray commits
 
-let createParameters parameters =
-    { parameters with IncrementMode = PatchPerCommit }
+[<Literal>]
+let ppc = "patch-per-commit"
+[<Literal>]
+let svr = "semantic-versioning"
+
+let createChangeParameters = function
+    | "patch-per-commit" ->
+        fun p -> { p with IncrementMode = PatchPerCommit }
+    | "semantic-versioning" ->
+        fun p -> { p with IncrementMode = SemanticVersioning }
+    | other ->
+        failwithf "Unsupported increment mode: '%s'" other
 
 let shouldEqual (expected : Incrementer.Version.SemVer) (actual : Incrementer.Version.SemVer) =
     actual.Major |> should equal expected.Major
     actual.Minor |> should equal expected.Minor
     actual.Patch |> should equal expected.Patch
 
-[<Test>]
-let ``Version is equal to number of commits when there is no tag in repo commit history`` () =
+
+[<TestCase(ppc, 2)>]
+[<TestCase(svr, 0)>]
+let ``Version is equal to number of commits when there is no tag in repo commit history`` mode patch =
     let getMessages =
         createMessages [
             "44d1fca (HEAD -> master) Setup FAKE and build script.";
@@ -26,12 +38,13 @@ let ``Version is equal to number of commits when there is no tag in repo commit 
             "ca3cf48 Initial commit";
         ]
 
-    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
+    let changeParameters = createChangeParameters mode 
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
 
-    version |> shouldEqual { Major = 1; Minor = 0; Patch = 2; }
+    version |> shouldEqual { Major = 1; Minor = 0; Patch = patch; }
 
 [<Test>]
-let ``Version is equal to number of commits after most recent tag`` () =
+let ``Version is equal to number of commits after most recent tag (PatchPerCommit mode)`` () =
     let getMessages =
         createMessages [
             "4510e19 Adjust package restore.";
@@ -45,12 +58,13 @@ let ``Version is equal to number of commits after most recent tag`` () =
             "d85d467 (tag: v1.1) Adjust build scripts for SQLite deployment.";
         ]
 
-    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
+    let changeParameters = createChangeParameters ppc
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
 
     version |> shouldEqual { Major = 1; Minor = 2; Patch = 4; }
 
 [<Test>]
-let ``Version patch component is incremented when most recent tag contains patch number (issue #2)`` () =
+let ``When most recent tag contains patch number version is incrementer by numer of commits since this tag (PatchPerCommit mode, issue #2)`` () =
     let getMessages =
         createMessages [
             "be419bf Remove process-killing from build.";
@@ -60,12 +74,14 @@ let ``Version patch component is incremented when most recent tag contains patch
             "87e123c Adjust build to include fsharp projects.";
         ]
 
-    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
+    let changeParameters = createChangeParameters ppc
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
 
     version |> shouldEqual { Major = 2; Minor = 4; Patch = 32; }
 
-[<Test>]
-let ``Version is extracted correctly from tag created at the same commit as branch head`` () =
+[<TestCase(ppc)>]
+[<TestCase(svr)>]
+let ``Version is extracted correctly from tag created at the same commit as branch head`` mode =
     let getMessages =
         createMessages [
             "6f63314 (HEAD -> master) Include Incrementer package for easier versioning.";
@@ -74,12 +90,14 @@ let ``Version is extracted correctly from tag created at the same commit as bran
             "bcf6d73 Increment version to 1.2.7.0";
         ]
     
-    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
+    let changeParameters = createChangeParameters mode
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
     
     version |> shouldEqual { Major = 1; Minor = 3; Patch = 1; }
 
-[<Test>]
-let ``Version is extracted correctly from tag created at local HEAD (issue #4)`` () =
+[<TestCase(ppc)>]
+[<TestCase(svr)>]
+let ``Version is extracted correctly from tag created at local HEAD (issue #4)`` mode =
     let getMessages =
         createMessages [
             "6f63314 (HEAD -> master, tag: 1.3) Include Incrementer package for easier versioning.";
@@ -87,7 +105,8 @@ let ``Version is extracted correctly from tag created at local HEAD (issue #4)``
             "bcf6d73 Increment version to 1.2.7.0";
         ]
 
-    let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
+    let changeParameters = createChangeParameters mode
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
 
     version |> shouldEqual { Major = 1; Minor = 3; Patch = 0 }
 
