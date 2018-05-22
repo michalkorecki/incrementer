@@ -2,6 +2,7 @@
 
 open FsUnit
 open Incrementer
+open Incrementer.Version
 open NUnit.Framework
 
 
@@ -9,7 +10,7 @@ let internal createMessages commits = fun _ ->
     Incrementer.Process.Success <| Seq.toArray commits
 
 let createParameters parameters =
-    parameters
+    { parameters with IncrementMode = PatchPerCommit }
 
 let shouldEqual (expected : Incrementer.Version.SemVer) (actual : Incrementer.Version.SemVer) =
     actual.Major |> should equal expected.Major

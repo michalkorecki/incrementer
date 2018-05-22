@@ -4,11 +4,15 @@ open Incrementer.Process
 open System
 open System.Text.RegularExpressions
 
-
+type IncrementMode =
+    | SemanticVersioning
+    | PatchPerCommit
+    
 type Parameters = {
     GitExecutablePath: string;
     GitRepositoryPath: string;
     Branch: string;
+    IncrementMode: IncrementMode;
 }
 
 type SemVer = {
@@ -18,7 +22,7 @@ type SemVer = {
 }
 
 let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> Parameters) (execProcess : Parameters -> ProcessOutput) =
-    let defaultParameters = { GitExecutablePath = "git.exe"; Branch = "master"; GitRepositoryPath = "." }
+    let defaultParameters = { GitExecutablePath = "git.exe"; Branch = "master"; GitRepositoryPath = "."; IncrementMode = SemanticVersioning }
     let parameters = changeParameters defaultParameters
     let output = execProcess parameters
     match output with
