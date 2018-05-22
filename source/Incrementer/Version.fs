@@ -42,7 +42,12 @@ let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> 
                 None
          
         let createInitialVersion messages =
-            let patch = (Seq.length messages) - 1
+            let patch = 
+                match parameters.IncrementMode with
+                | SemanticVersioning ->
+                    0
+                | PatchPerCommit ->
+                    (Seq.length messages) - 1
             { Major = 1; Minor = 0; Patch = patch }
             
         let mostRecentTagVersion =
