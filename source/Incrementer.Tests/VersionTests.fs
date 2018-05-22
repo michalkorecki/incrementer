@@ -28,7 +28,7 @@ let ``Version is equal to number of commits when there is no tag in repo commit 
 
     let version = Incrementer.Version.getRepositoryVersionUsingProcess createParameters getMessages
 
-    version |> shouldEqual { Major = 1; Minor = 0; Patch = 3; }
+    version |> shouldEqual { Major = 1; Minor = 0; Patch = 2; }
 
 [<Test>]
 let ``Version is equal to number of commits after most recent tag`` () =

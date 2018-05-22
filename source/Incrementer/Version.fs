@@ -40,6 +40,10 @@ let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> 
                 Some { Major = major; Minor = minor; Patch = patch + index; }
             else
                 None
+         
+        let createInitialVersion messages =
+            let patch = (Seq.length messages) - 1
+            { Major = 1; Minor = 0; Patch = patch }
             
         let mostRecentTagVersion =
             messages
@@ -49,7 +53,7 @@ let internal getRepositoryVersionUsingProcess (changeParameters : Parameters -> 
         
         match mostRecentTagVersion with
         | Some(v) -> v
-        | _ -> { Major = 1; Minor = 0; Patch = (Seq.length messages); }
+        | _ -> createInitialVersion messages
 
 let getRepositoryVersion changeParameters =
     let execGitProcess =
