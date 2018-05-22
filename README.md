@@ -15,7 +15,7 @@ Install-Package Incrementer
 
 ### behavior
 
-Incrementer uses git tags to track most recent version and then appends number of commits since last tag to increment *patch* part of version. When your git log looks like this:
+Incrementer uses git tags to track most recent version and then increments *patch* part of version using one of the two stategies: **semantic-versioning** (default) or **patch-per-commit**. When your git log looks like this:
 
 ```
 4510e19 Adjust package restore
@@ -28,7 +28,10 @@ aa1ccd3 Merge branch FSharp. Resolves #37, resolves #40
 d85d467 (tag: v1.1) Adjust build scripts for SQLite deployment
 ```
 
-The version returned by Incrementer will be `1.2.4`.
+Incrementer assumes most recent version is `1.2.0`. Depending on selected strategy, the new version will be:
+
+* `1.2.1` with semantic-versioning (most recent version incremented by 1)
+* `1.2.4` with patch-per-commit (most recent version increased by the number of commits since this version)
 
 ### usage (F#)
 
@@ -66,6 +69,14 @@ Target "Publish" (fun _ ->
 
     // ...
 )
+```
+
+Begining with version `2.0.0`, Incrementer uses semantic-versioning strategy by default. To change it (and effectively restore Incrementer `1.0.X` behavior) change `IncrementMode` parameter:
+
+```fsharp
+Target "Publish" (fun _ ->
+    let changeDefaults = fun p -> { p with IncrementMode = PatchPerCommit }
+    // ...
 ```
 
 
