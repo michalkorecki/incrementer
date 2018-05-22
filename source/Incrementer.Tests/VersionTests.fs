@@ -28,9 +28,8 @@ let shouldEqual (expected : Incrementer.Version.SemVer) (actual : Incrementer.Ve
     actual.Patch |> should equal expected.Patch
 
 
-[<TestCase(ppc, 2)>]
-[<TestCase(svr, 0)>]
-let ``Version is equal to number of commits when there is no tag in repo commit history`` mode patch =
+[<Test>]
+let ``In patch-per-commit mode, version is equal to number of commits when there is no tag in repo commit history`` () =
     let getMessages =
         createMessages [
             "44d1fca (HEAD -> master) Setup FAKE and build script.";
@@ -38,13 +37,28 @@ let ``Version is equal to number of commits when there is no tag in repo commit 
             "ca3cf48 Initial commit";
         ]
 
-    let changeParameters = createChangeParameters mode 
+    let changeParameters = createChangeParameters ppc 
     let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
 
-    version |> shouldEqual { Major = 1; Minor = 0; Patch = patch; }
+    version |> shouldEqual { Major = 1; Minor = 0; Patch = 2; }
 
 [<Test>]
-let ``Version is equal to number of commits after most recent tag (PatchPerCommit mode)`` () =
+let ``In semantic-versioning mode, version is equal to 1.0.0 when there is not tag in repo commit history``() =
+    let getMessages =
+        createMessages [
+            "44d1fca (HEAD -> master) Setup FAKE and build script.";
+            "1e90a42 (origin/master, origin/HEAD) Add linqpad POC.";
+            "ca3cf48 Initial commit";
+        ]
+
+    let changeParameters = createChangeParameters svr
+    let version = Incrementer.Version.getRepositoryVersionUsingProcess changeParameters getMessages
+
+    version |> shouldEqual { Major = 1; Minor = 0; Patch = 0; }
+
+
+[<Test>]
+let ``In patch-per-commit mode, version is equal to number of commits after most recent tag`` () =
     let getMessages =
         createMessages [
             "4510e19 Adjust package restore.";
@@ -64,7 +78,7 @@ let ``Version is equal to number of commits after most recent tag (PatchPerCommi
     version |> shouldEqual { Major = 1; Minor = 2; Patch = 4; }
 
 [<Test>]
-let ``When most recent tag contains patch number version is incrementer by number of commits since this tag (PatchPerCommit mode, issue #2)`` () =
+let ``In patch-per-commit mode, when most recent tag contains patch number version is increased by number of commits since this tag (issue #2)`` () =
     let getMessages =
         createMessages [
             "be419bf Remove process-killing from build.";
@@ -80,7 +94,7 @@ let ``When most recent tag contains patch number version is incrementer by numbe
     version |> shouldEqual { Major = 2; Minor = 4; Patch = 32; }
 
 [<Test>]
-let ``Most recent tag version is incremented by one (SemanticVersioning mode)`` () =
+let ``In semantic-versioning mode, most recent tag's patch comonent is incremented by one`` () =
     let getMessages =
         createMessages [
             "be419bf Remove process-killing from build.";
